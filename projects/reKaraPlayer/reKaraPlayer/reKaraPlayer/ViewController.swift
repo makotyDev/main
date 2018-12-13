@@ -1,6 +1,6 @@
 //
 //  ViewController.swift
-//  reKara Player
+//  reKaraPlayer
 //
 //  Created by makoty on 2018/10/08.
 //  Copyright © 2018 makoty. All rights reserved.
@@ -15,6 +15,7 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate
     @IBOutlet weak var artistLabel: UITextField!
     @IBOutlet weak var albumLabel: UITextField!
     @IBOutlet weak var songLabel: UITextField!
+    @IBOutlet weak var musicNumberLabel: UITextField!
 
     var player = MPMusicPlayerController.systemMusicPlayer
 
@@ -58,14 +59,30 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate
             imageView.image = image
         } else {
             // アートワークがないとき
-            // (今回は灰色表示としました)
             imageView.image = nil
             imageView.backgroundColor = UIColor.gray
         }
         
     }
 
-    @IBAction func pick(_ sender: Any) {
+    @IBAction func selectNumberPlay(_ sender: Any)
+    {
+        // 曲名順で全曲取得
+        let query  = MPMediaQuery.songs()
+
+        player.setQueue(with: query)
+
+        // let songId = musicNumberLabel.text
+        // 曲にIDが振ってあるわけではなく、キューに任意でセットした曲配列の添字
+        let mediaItem = query.items![0]
+        player.nowPlayingItem = mediaItem
+        updateSongInformationUI(mediaItem: mediaItem)
+
+        player.play()
+    }
+
+    @IBAction func pick(_ sender: Any)
+    {
         // MPMediaPickerControllerのインスタンスを作成
         let picker = MPMediaPickerController()
         // ピッカーのデリゲートを設定
@@ -74,7 +91,6 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate
         picker.allowsPickingMultipleItems = true
         // ピッカーを表示する
         present(picker, animated: true, completion: nil)
-        
     }
 
     /// メディアアイテムピッカーでアイテムを選択完了したときに呼び出される
@@ -94,6 +110,7 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate
         // ピッカーを閉じ、破棄する
         dismiss(animated: true, completion: nil)
         
+        player.play()
     }
     
     //選択がキャンセルされた場合に呼ばれる
@@ -110,6 +127,18 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate
     }
     @IBAction func pushStop(_ sender: Any) {
         player.stop()
+    }
+
+    @IBAction func pushNext(_ sender: Any)
+    {
+        player.currentPlaybackTime = 0
+        player.skipToNextItem()
+    }
+
+    @IBAction func pushPreview(_ sender: Any)
+    {
+        player.currentPlaybackTime = 0
+        player.skipToPreviousItem()
     }
 
     // デストラクタ
